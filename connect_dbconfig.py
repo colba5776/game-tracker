@@ -13,9 +13,9 @@ def connect():
         conn = MySQLConnection(**db_config)
 
         if conn.is_connected():
-            print('Connection established.')
+            print('Connection established. \n')
         else:
-            print('Connection failed.')
+            print('Connection failed. \n')
 
     except Error as error:
         print(error)
