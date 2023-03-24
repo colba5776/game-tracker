@@ -81,7 +81,7 @@ def register():
         if result is not None:
             print(f"Username ({userName}) is not available.")
         else:  
-            userInput = input("Do these credentials look good? \n Enter [Y] to confirm, [N] to update credentials: ")    
+            userInput = input("Do these credentials look good?\n Enter [Y] to confirm, [N] to update credentials: ")    
             if (userInput == 'Y'):
                 confirmed = True
                 # Insert the new user into the database
