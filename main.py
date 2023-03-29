@@ -55,7 +55,7 @@ def login():
     result = cursor.fetchone() # Get the resulting row for the query
     
     # Check if we successfully found a user with the matching credentials and return the userId if we did
-    if result is not None:
+    if (result is not None):
         userId = int(result[0])
         print(f"Welcome {userName}!")
     else:
@@ -78,7 +78,7 @@ def register():
         result = cursor.fetchone() # Get the resulting row for the query
         
         # Check if we successfully found a user with the matching userName
-        if result is not None:
+        if (result is not None):
             print(f"Username ({userName}) is not available.")
         else:  
             userInput = input("Do these credentials look good?\n Enter [Y] to confirm, [N] to update credentials: ")    
@@ -86,6 +86,7 @@ def register():
                 confirmed = True
                 # Insert the new user into the database
                 cursor.execute(f"INSERT INTO user (userName, userPassword) VALUES ('{userName}', '{userPassword}');")
+                conn.commit()
     
 
 if __name__ == "__main__":

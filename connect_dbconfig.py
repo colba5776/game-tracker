@@ -5,17 +5,18 @@ def connect():
     """ Connect to MySQL database """
 
     db_config = read_db_config()
-    print("Type", type(db_config))
+    #print("Type", type(db_config))
     conn = None
     try:
-        print('Connecting to MySQL database...')
+        # print('Connecting to MySQL database...')
         # Unpack the dictionary arguments 
         conn = MySQLConnection(**db_config)
 
+        """
         if conn.is_connected():
             print('Connection established. \n')
         else:
-            print('Connection failed. \n')
+            print('Connection failed. \n') """
 
     except Error as error:
         print(error)
