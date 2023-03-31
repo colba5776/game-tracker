@@ -71,6 +71,7 @@ def edit_game(ownerId):
         conn.commit()
         # Get and store the gameId of the new game
         result = cursor.execute(f"SELECT gameId FROM game WHERE gameTitle='{gameTitle}'")
+        result = cursor.fetchone()
         gameId = result[0]
         userInput = None
         while (userInput != 'Y' and userInput != 'N'):
