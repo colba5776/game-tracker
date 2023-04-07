@@ -267,13 +267,13 @@ def add_achievements(gameId):
 """ Used to list out games in the database """
 def list_games(gameId, genreId, ownerId, userId): 
     # Check if the user wants to see the report for a specific game
-    """ NOT WORKING, FIX
     if (gameId is not None and userId is not None):
-        args = [gameId, userId]
-        cursor.callproc('game_report', args)
-        result = cursor.fetchone()
+        #args = [gameId, userId]
+        #cursor.callproc('game_report', args)
+        #result = cursor.fetchone()
+        cursor.execute(f"SELECT gameID, gameTitle, gameDescription, get_genre_name(genreId), get_user_name(userId), get_average_rating('{gameId}'), get_game_played('{gameId}', '{userId}') FROM game WHERE gameId='{gameId}';")
         # Create and print the pretty table of games
-        pt = from_db_cursor(result)
+        pt = from_db_cursor(cursor)
         pt.field_names = ["Game ID", "Title", "Description", "Genre", "Owner", "Average Rating", "Played?"]
         pt.del_column("Game ID")
         pt.align["Title"] = "l"
@@ -288,7 +288,7 @@ def list_games(gameId, genreId, ownerId, userId):
         cursor.execute(f"SELECT gameDescription FROM game WHERE gameId='{gameId}';")
         result = cursor.fetchone()
         print(f"Description: {result[0]}\n")
-        return"""
+        return
     # Check if the user wants to see a specific game
     if (gameId is not None):
         cursor.execute(f"SELECT gameID, gameTitle, gameDescription, get_genre_name(genreId), get_user_name(userId) FROM game WHERE gameId='{gameId}';")
@@ -302,10 +302,6 @@ def list_games(gameId, genreId, ownerId, userId):
         pt.align["Owner"] = "l"
         pt.sortby = "Title"
         print(pt)
-        # Print the description for the game after the pretty table
-        cursor.execute(f"SELECT gameDescription FROM game WHERE gameId='{gameId}';")
-        result = cursor.fetchone()
-        print(f"Description: {result[0]}\n")
         return
     # Check if we only want to list games added by ownerId
     if (ownerId is not None):
