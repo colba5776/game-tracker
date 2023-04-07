@@ -9,7 +9,7 @@ cursor.execute("USE gametrackerdb;")
 
 def manage_games(userId):
     # List out all the games in the database
-    list_games(None, None)
+    list_games(None, None, None, None)
     # While the user still wants to do something here
     done = False
     while (not done):
@@ -20,11 +20,10 @@ def manage_games(userId):
 
         # If they wish to search for a game
         if (userInput == 'S'):
-            # Display list of all games
-            list_games(None, None) # DO SOMETHING ELSE HERE
+            search_games()
         # If they wish to view info on a game
         if (userInput == 'V'):
-            view_game()
+            view_game(userId)
         # If they wish to edit a game
         if (userInput == 'E'):
             edit_game(userId)
@@ -32,8 +31,65 @@ def manage_games(userId):
         if (userInput == 'B'):
             done = True
 
+""" Allows user to search for a game by either Title, Genre, or Owner """
+def search_games():
+    # Ask the user what they would like to search by
+    userInput = None
+    while (userInput != 'T' and userInput != 'G' and userInput != 'O'):
+        userInput = input("What would you like to search by? Enter [T] for Title, [G] for Genre, [O] for Owner: ")
+    # Check if they want to search by 
+    if (userInput == 'T'):
+        gameTitle = None
+        while (gameTitle == None):
+            # Get their input for the title
+            gameTitle = input("Enter the title of the game you want to search for: ")
+            # Get the game they are searching for
+            cursor.execute(f"SELECT gameId FROM game WHERE gameTitle='{gameTitle}';")
+            result = cursor.fetchone() # Get the resulting row for the query
+            if (result is None):
+                print(f"{gameTitle} does not exist!")
+                gameTitle = None
+        # Get the gameId
+        gameId = result[0]
+        # Once game is found, display it using a pretty table
+        list_games(gameId, None, None, None)
+    # Check if they want to search by genre
+    if (userInput == 'G'):
+        genreName = None
+        while (genreName == None):
+            # Get the input for the genre the user wishes to search by
+            genreName = input("Enter the genre you want to search by: ")
+            # Get the genre they are searching by and double check that is exists
+            cursor.execute(f"SELECT genreId FROM genre WHERE genreName='{genreName}';")
+            result = cursor.fetchone() # Get the resulting row for the query
+            if (result is None):
+                print(f"{genreName} genre does not exist!")
+                genreName = None
+        # Get the genreId
+        genreId = result[0]
+        # Lists out all games with the corresponding genreId
+        print(f"----- List of {genreName} games -----")
+        list_games(None, genreId, None, None)
+    # Check if they want to search by ownerId
+    if (userInput == 'O'):
+        userName = None
+        while (userName == None):
+            # Get the userName they wish to search by
+            userName = input("Enter the username you want to search by: ")
+            # Get the userId for the userName and double check that it exists
+            cursor.execute(f"SELECT userId FROM user WHERE userName='{userName}';")
+            result = cursor.fetchone() # Get the resulting row for the query
+            if (result is None):
+                print(f"User {userName} does not exist!")
+                userName = None
+        # Get the ownerId
+        ownerId = result[0]
+        # List out all games owned by the corresponding ownerId
+        print(f"----- List of games owned by {userName} -----")
+        list_games(None, None, ownerId, None)
+
 """ Used to allow the user to view different game's information """
-def view_game():
+def view_game(userId):
     # Ask whether the user which game they would like to view information on
     gameTitle = None
     while (gameTitle == None):
@@ -49,7 +105,7 @@ def view_game():
     result = cursor.fetchone()
     gameId = result[0]
     # List game information
-    list_games(None, gameId)
+    list_games(gameId, None, None, userId)
     # Ask them if they would like to view the achievements for this game
     userInput = None
     while (userInput != 'Y' and userInput != 'N'):
@@ -107,8 +163,6 @@ def edit_game(ownerId):
         # If they want to add achievements
         if (userInput == 'Y'):
             add_achievements(gameId)
-        # Here is your newly added game!
-
     # If the user entered U to update a game
     else:
         # Check if they own any games and cancel if they do not
@@ -119,7 +173,7 @@ def edit_game(ownerId):
             return
         # Print out the list of games the user can Update (only games that they added themselves)
         print("----- Your Games -----")
-        list_games(ownerId, None)
+        list_games(None, None, ownerId, None)
         # Make sure the game's title matches the title of a game this user owns
         gameTitle = None
         while (gameTitle == None):
@@ -210,11 +264,32 @@ def add_achievements(gameId):
         if (userInput == 'N'):
             done = True
 
-""" Used to list out all the games in the database """
-""" If ownerId is not None, then only list games added by ownerId """
-""" If gameId is not None, then only list the game with gameId """
-def list_games(ownerId, gameId):
-    # Check if we want to list a specific game
+""" Used to list out games in the database """
+def list_games(gameId, genreId, ownerId, userId): 
+    # Check if the user wants to see the report for a specific game
+    """ NOT WORKING, FIX
+    if (gameId is not None and userId is not None):
+        args = [gameId, userId]
+        cursor.callproc('game_report', args)
+        result = cursor.fetchone()
+        # Create and print the pretty table of games
+        pt = from_db_cursor(result)
+        pt.field_names = ["Game ID", "Title", "Description", "Genre", "Owner", "Average Rating", "Played?"]
+        pt.del_column("Game ID")
+        pt.align["Title"] = "l"
+        pt.del_column("Description")
+        pt.align["Genre"] = "l"
+        pt.align["Owner"] = "l"
+        pt.align["Average Rating"] = "l"
+        pt.align["Played?"] = "l"
+        pt.sortby = "Title"
+        print(pt)
+        # Print the description for the game after the pretty table
+        cursor.execute(f"SELECT gameDescription FROM game WHERE gameId='{gameId}';")
+        result = cursor.fetchone()
+        print(f"Description: {result[0]}\n")
+        return"""
+    # Check if the user wants to see a specific game
     if (gameId is not None):
         cursor.execute(f"SELECT gameID, gameTitle, gameDescription, get_genre_name(genreId), get_user_name(userId) FROM game WHERE gameId='{gameId}';")
         # Create and print the pretty table of games
@@ -231,12 +306,18 @@ def list_games(ownerId, gameId):
         cursor.execute(f"SELECT gameDescription FROM game WHERE gameId='{gameId}';")
         result = cursor.fetchone()
         print(f"Description: {result[0]}\n")
-    else:
-        # Check if we only want to list games added by ownerId
-        if (ownerId is not None):
-            cursor.execute(f"SELECT gameID, gameTitle, gameDescription, get_genre_name(genreId), get_user_name(userId) FROM game WHERE userId='{ownerId}';")
-        else:
-            cursor.execute("SELECT gameID, gameTitle, gameDescription, get_genre_name(genreId), get_user_name(userId) FROM game;")
+        return
+    # Check if we only want to list games added by ownerId
+    if (ownerId is not None):
+        cursor.execute(f"SELECT gameID, gameTitle, gameDescription, get_genre_name(genreId), get_user_name(userId) FROM game WHERE userId='{ownerId}';")
+    # Check if we want to list the game by genreId
+    if (genreId is not None):
+        cursor.execute(f"SELECT gameID, gameTitle, gameDescription, get_genre_name(genreId), get_user_name(userId) FROM game WHERE genreId='{genreId}';")
+    # If no parameters are provided
+    if (genreId is None and gameId is None and ownerId is None):
+        cursor.execute("SELECT gameID, gameTitle, gameDescription, get_genre_name(genreId), get_user_name(userId) FROM game;")
+    # If no gameId was provided
+    if (gameId is None):
         # Create and print the pretty table of games
         pt = from_db_cursor(cursor)
         pt.field_names = ["Game ID", "Title", "Description", "Genre", "Owner"]
