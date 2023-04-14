@@ -3,6 +3,7 @@ from prettytable import from_db_cursor
 from connect_dbconfig import connect
 from login_register import login, register
 from manage_games import manage_games
+from manage_playthroughs import manage_playthroughs
 
 # Establish a connection, create a cursor and set it to use gametrackerdb
 conn = connect()
@@ -34,8 +35,8 @@ def main():
         # If they wish to go to games
         if (userInput == 'Games'):
             manage_games(userId)
-        #if (userInput == 'Playthroughs'):
-            # Your function here
+        if (userInput == 'Playthroughs'):
+            manage_playthroughs(userId)
         #if (userInput == 'Ratings'):
             # Your function here
         if (userInput == 'Quit'):
