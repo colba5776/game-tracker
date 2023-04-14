@@ -75,6 +75,44 @@ BEGIN
 END$$
 DELIMITER ;
 
+USE `gametrackerdb`;
+DROP function IF EXISTS `get_game_title`;
+
+DELIMITER $$
+USE `gametrackerdb`$$
+CREATE FUNCTION `get_game_title`(game_id int) RETURNS varchar(45)
+    DETERMINISTIC
+BEGIN
+	DECLARE game_title VARCHAR(45);
+    SELECT gameTitle INTO game_title
+		FROM game
+        WHERE gameId=game_id;
+	RETURN game_title;
+END$$
+DELIMITER ;
+
+USE `gametrackerdb`;
+DROP function IF EXISTS `get_achievement_completed_percent`;
+
+DELIMITER $$
+USE `gametrackerdb`$$
+CREATE DEFINER=`root`@`localhost` FUNCTION `get_achievement_completed_percent`(playthrough_id INT) RETURNS float
+    DETERMINISTIC
+BEGIN
+	DECLARE percent_completed FLOAT;
+    DECLARE count_complete INT;
+    DECLARE count_total INT;
+	SELECT count(*) INTO count_complete 
+		FROM playthroughachievement
+		WHERE playthroughId = playthrough_id AND achievementStatus = 'Complete';
+	SELECT count(*) INTO count_total
+		FROM playthroughachievement
+		WHERE playthroughId = playthrough_id;
+	SET percent_completed = 100 * (count_complete / count_total);
+	RETURN percent_completed;
+END$$
+DELIMITER ;
+
 /* Create stored procedures */
 
 USE `gametrackerdb`;

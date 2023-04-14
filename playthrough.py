@@ -19,10 +19,10 @@ globalUserID = null
 gameID = null
 
 def main(userID):
-        dumpPTTable(userID, null)
-        globalUserID = userID
-        leaveFlag = false
-        while leaveflag == false:
+	dumpPTTable(userID, null)
+	globalUserID = userID
+	leaveFlag = false
+	while leaveflag == false:
                 print(lineD)
                 menuflag = input("What do you want to do \n[A]-add Playthrough \n[E]-edit Playthrough\n[S]-search playthrough\n[R]-Report Generation \n[e]-exit to previous Menu")
                 match menuflag.lower():
@@ -45,9 +45,10 @@ def main(userID):
                         case _:
                                 print(lineD)
                                 print("Error: input value does not match any of the given choices please choose again")
-          print(lineD)
+        print(lineD)
           
 def reportGenPT():
+	None
         
 def SearchPT ():
         leaveflagSearchPT = false
@@ -66,7 +67,7 @@ def SearchPT ():
 def dumpPTTable(UserID, PTID):
 	if pTID == null:
 		cursor.execute(f"SELECT playthroughID, playthroughName, playthroughDesc, playthroughTargetpercent,playthroughCurrentpercent, playthroughstartdate, playthroughenddate from playthrough where userID = '{userID}' ")
-	elif ptid != null && userid != null:
+	elif ptid != null and userid != null:
 		cursor.execute(f"SELECT playthroughID, playthroughName, playthroughDesc, playthroughTargetpercent,playthroughCurrentpercent, playthroughstartdate, playthroughenddate from playthrough where userID = '{userID}', playthroughID = '{ptid}'")
         pt = from_db_cursor(cursor)
         print(pt)
@@ -79,8 +80,8 @@ def addRun(insertUserID, insertGameID):
 	#limit varchar 45 add if statement on size
 	#enter the playthrough description
 	playthroughName = input("Enter your desired playthorugh name: ")
-	while playthroughName > 45:
-    	playthroughName = input("Enter your desired playthorugh name: ")
+	while len(playthroughName) > 45:
+    	        playthroughName = input("Enter your desired playthorugh name: ")
 
         #limit varchar 250 add if statement on size
         #enter the playthorugh description
@@ -148,7 +149,7 @@ def editPlaythroughDes(playthroughID):
 	
 def editPlaythroughPercent(playthroughID):
 	editPlaythroughPerc = input("What is the percent playthrough (0-100)?: ")
-	while editPlaythroughPerc > 100 && editPlaythroughPerc < 0:
+	while editPlaythroughPerc > 100 and editPlaythroughPerc < 0:
 		print("Error the value was not in range 0-100, please enter another Description")
 		editPlaythroughPERC = input("What is the percent in the playthrough(must be 0-100)?: ")
 	cursor.execute(f"call changePTPERC('{editPlaythroughPERC}','{playthroughID}')")
@@ -156,7 +157,7 @@ def editPlaythroughPercent(playthroughID):
 
 def editPlaythroughtargetPercent(playthroughID):
 	editPlaythroughPercTarg = input("What is the percent playthrough Target(0-100)?: ")
-	while editPlaythroughPercTarg > 100 & & editPlaythroughPercTarg < 0:
+	while editPlaythroughPercTarg > 100 and editPlaythroughPercTarg < 0:
 		print("Error the value was not in range 0-100, please enter another Description")
 		editPlaythroughPERCTarg = input("What is the percent in the playthrough(must be 0-100)?: ")
 	cursor.execute(f"call changePTPERCTarg('{editPlaythroughPERCTarg}','{playthroughID}')")

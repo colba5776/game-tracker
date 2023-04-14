@@ -4,6 +4,7 @@ from connect_dbconfig import connect
 from login_register import login, register
 from manage_games import manage_games
 from manage_playthroughs import manage_playthroughs
+from manage_ratings import manage_ratings
 
 # Establish a connection, create a cursor and set it to use gametrackerdb
 conn = connect()
@@ -24,6 +25,7 @@ def main():
         userId = login()
 
     # Maybe list out some cool stats? Like recently completed playthroughs, list of games, etc..
+    
 
     # While the user is not done
     done = False
@@ -37,8 +39,8 @@ def main():
             manage_games(userId)
         if (userInput == 'Playthroughs'):
             manage_playthroughs(userId)
-        #if (userInput == 'Ratings'):
-            # Your function here
+        if (userInput == 'Ratings'):
+            manage_ratings(userId)
         if (userInput == 'Quit'):
             done = True
     

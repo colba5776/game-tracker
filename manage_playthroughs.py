@@ -17,7 +17,6 @@ def manage_playthroughs(userId):
         userInput = None
         while (userInput != 'S' and userInput != 'E' and userInput != 'V' and userInput != 'B'):
             userInput = input("Enter [S] to Search, [V] to View, [E] to Edit or Add, [B] to go Back: ")
-
         # If they wish to search for a playthrough
         if (userInput == 'S'):
             search_playthroughs()

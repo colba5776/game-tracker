@@ -17,7 +17,6 @@ def manage_games(userId):
         userInput = None
         while (userInput != 'S' and userInput != 'E' and userInput != 'V' and userInput != 'B'):
             userInput = input("Enter [S] to Search, [V] to View, [E] to Edit or Add, [B] to go Back: ")
-
         # If they wish to search for a game
         if (userInput == 'S'):
             search_games()
