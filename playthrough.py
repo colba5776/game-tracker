@@ -1,6 +1,6 @@
 
 #Gregory Sylveser
-#3/30/2024
+#4/12/2023
 #notes:
 #merge with login_register or find another way to get userID and gameID
 #values of Update statement and use of cursor
@@ -16,22 +16,23 @@ conn = connect()
 cursor = conn.cursor()
 cursor.execute("USE gametrackerdb;")
 
-
-#temp values for the scope of the playthrough script
-
 #change UserID when logining in 
 userID = null
 
 #change gameID python script needed to choose which game
 gameID = null
 
+def dumpPTTable(UserID, PTID):
+	if pTID == null:
+		cursor.execute(f"SELECT playthroughID, playthroughName, playthroughDesc, playthroughTargetpercent,playthroughCurrentpercent, playthroughstartdate, playthroughenddate from playthrough where userID = {userID} ")
+	elif ptid != null && userid != null:
+		cursor.execute(f"SELECT playthroughID, playthroughName, playthroughDesc, playthroughTargetpercent,playthroughCurrentpercent, playthroughstartdate, playthroughenddate from playthrough where userID = {userID}, playthroughID = {ptid}")
 
 #Used to create instance of playthrough
 def addRun(insertUserID, insertGameID):
 
 	#insert check funciton
 	#already exists
-
 	#limit varchar 45 add if statement on size
 	#enter the playthrough description
 	playthroughName = input("Enter your desired playthorugh name: ")
@@ -61,10 +62,6 @@ def addRun(insertUserID, insertGameID):
 
 
 
-
-#not sure if we need this
-#toDo:debug, output table for user to view when chooseing
-#function: edits run playthoughID with appropriate values
 def editRun(playthroughID):
 
 	doneEdit = 'y'
@@ -72,7 +69,6 @@ def editRun(playthroughID):
 	while doneEdit == 'y':
 
 		changeValue = input("which attribute would you like to change?:\n[1] - Name \n[2] - playthroughDescription \n[3] - current percent\n[4] - target percent \n[5] - endDate")
-
 
 		#case on which value to change
 		match changeValue:
@@ -88,37 +84,41 @@ def editRun(playthroughID):
 				editPlaythroughEndDate(playthroughID)
 			case _:
 				print("error: please enter a value 1-5, input was not in this range")
-
 		doneEdit = input(f"Do you want to change any other values on {playthroughID}: [y] - yes [n] - no")
 
-
-
-#still need to insert
 def editPlaythroughName(playthroughID):
 	editPlaythroughName = input("What would you like to change the name of the playthrough to(must be less than 45 characters)?: ")
 	while len(editPlaythrougnName) >= 45:
 		print("error the length of the string input is too long, please enter another name")
 		editPlaythroughName = input("What would you like to change the name of the playthrough to(must be less than 45 characters)?: ")
-	
-	#insert update cursor statement 
+	cursor.execute(f"call changePTNAME(\""{editPlaythroughName}f",{playthroughID})")
+	conn.commit()
+
 
 def editPlaythroughDes(playthroughID):
-	editPlaythroughDesc = input("What would you like to change the name of the playthrough to(must be less than 45 characters)?: ")
-
-
-	#insert update cursor statement 
+	editPlaythroughDesc = input("What would you like to change the description of the playthrough to(must be less than 45 characters)?: ")
+	while len(editPlaythroughDesc) >= 250:
+		print("error the length of the string input is too long, please enter another Description")
+		editPlaythroughName = input("What would you like to change the Description of the playthrough to(must be less than 250 characters)?: ")
+	cursor.execute(f'call changePTDESC("{editPlaythroughDESC}",{playthroughID})')
+	conn.commit()
 	
 def editPlaythroughPercent(playthroughID):
-	editPlaythroughPercent = input("What would you like to change the name of the playthrough to(must be less than 45 characters)?: ")
-
-	#insert update cursor statement 
+	editPlaythroughPerc = input("What is the percent playthrough (0-100)?: ")
+	while editPlaythroughPerc > 100 && editPlaythroughPerc < 0:
+		print("Error the value was not in range 0-100, please enter another Description")
+		editPlaythroughPERC = input("What is the percent in the playthrough(must be 0-100)?: ")
+	cursor.execute(f'call changePTPERC("{editPlaythroughPERC}",{playthroughID})')
+	conn.commit()
 
 def editPlaythroughtargetPercent(playthroughID):
-	editPlaythroughTargetPercent = input("What would you like to change the name of the playthrough to(must be less than 45 characters)?: ")
-
-	#insert update cursor statement 
+	editPlaythroughPercTarg = input("What is the percent playthrough Target(0-100)?: ")
+	while editPlaythroughPercTarg > 100 & & editPlaythroughPercTarg < 0:
+		print("Error the value was not in range 0-100, please enter another Description")
+		editPlaythroughPERCTarg = input("What is the percent in the playthrough(must be 0-100)?: ")
+	cursor.execute(f'call changePTPERCTarg("{editPlaythroughPERCTarg}",{playthroughID})')
+	conn.commit()
 
 def editPlaythroughEndDate(playthroughID):
-	#change the end date tot be a flag that will take the current date
-	editPlaythroughEndDatetarget
-	#insert update cursor statement 
+
+	#insert the update edit playthroughEnddate to be the curDate()
