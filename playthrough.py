@@ -25,7 +25,7 @@ gameID = null
 def dumpPTTable(UserID, PTID):
 	if pTID == null:
 		cursor.execute(f"SELECT playthroughID, playthroughName, playthroughDesc, playthroughTargetpercent,playthroughCurrentpercent, playthroughstartdate, playthroughenddate from playthrough where userID = {userID} ")
-	elif ptid != null && userid != null:
+	elif ptid != null and userid != null:
 		cursor.execute(f"SELECT playthroughID, playthroughName, playthroughDesc, playthroughTargetpercent,playthroughCurrentpercent, playthroughstartdate, playthroughenddate from playthrough where userID = {userID}, playthroughID = {ptid}")
 
 #Used to create instance of playthrough
@@ -48,13 +48,13 @@ def addRun(insertUserID, insertGameID):
 
     #limit int percent should be less than 100
     #enter playthough target percentage
-    playthroughTargetPercentage = input("Enter target percent for playthough: ")
+	playthroughTargetPercentage = input("Enter target percent for playthough: ")
     while playthroughTargetPercentage > 100:
 		playthroughTargetPercentage = input("Enter target percent for playthough: ")
 
     #check to make sure the current percentage is forced to start at 0
     #enter playthorugh current percentage
-    playthoughCurrentPerecntage = 0
+	playthoughCurrentPerecntage = 0
 
     #review insertion execution
     cursor.execute(f"INSERT INTO user (userID, gameID, playthoughName, playthroughDescription, playthoughTargetPercent) VALUES ('{insertUserID}', '{insertGameID}', '{playthroughName}','{playthroughDescript}', '{playthroughTargetPercentage}');")
@@ -105,7 +105,7 @@ def editPlaythroughDes(playthroughID):
 	
 def editPlaythroughPercent(playthroughID):
 	editPlaythroughPerc = input("What is the percent playthrough (0-100)?: ")
-	while editPlaythroughPerc > 100 && editPlaythroughPerc < 0:
+	while editPlaythroughPerc > 100 and editPlaythroughPerc < 0:
 		print("Error the value was not in range 0-100, please enter another Description")
 		editPlaythroughPERC = input("What is the percent in the playthrough(must be 0-100)?: ")
 	cursor.execute(f'call changePTPERC("{editPlaythroughPERC}",{playthroughID})')
@@ -113,7 +113,7 @@ def editPlaythroughPercent(playthroughID):
 
 def editPlaythroughtargetPercent(playthroughID):
 	editPlaythroughPercTarg = input("What is the percent playthrough Target(0-100)?: ")
-	while editPlaythroughPercTarg > 100 & & editPlaythroughPercTarg < 0:
+	while editPlaythroughPercTarg > 100 and editPlaythroughPercTarg < 0:
 		print("Error the value was not in range 0-100, please enter another Description")
 		editPlaythroughPERCTarg = input("What is the percent in the playthrough(must be 0-100)?: ")
 	cursor.execute(f'call changePTPERCTarg("{editPlaythroughPERCTarg}",{playthroughID})')
