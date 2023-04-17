@@ -113,6 +113,22 @@ BEGIN
 END$$
 DELIMITER ;
 
+USE `gametrackerdb`;
+DROP function IF EXISTS `get_achievement_name`;
+
+DELIMITER $$
+USE `gametrackerdb`$$
+CREATE DEFINER=`root`@`localhost` FUNCTION `get_achievement_name`(achievement_id INT) RETURNS varchar(45) CHARSET utf8mb3
+DETERMINISTIC
+BEGIN
+	DECLARE achievement_name VARCHAR(45);
+    SELECT achievementName INTO achievement_name
+		FROM achievement
+        WHERE achievementId=achievement_id;
+	RETURN achievement_name;
+END$$
+DELIMITER ;
+
 /* Create stored procedures */
 
 USE `gametrackerdb`;
