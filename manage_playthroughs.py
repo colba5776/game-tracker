@@ -12,7 +12,6 @@ cursor = conn.cursor(buffered=True)
 cursor.execute("USE gametrackerdb;")
 
 def manage_playthroughs(userId):
-
     # While the user still wants to do something here
     listPT(userId, None, -1)
     done = False
@@ -21,7 +20,7 @@ def manage_playthroughs(userId):
         #dump all avaliable playthrough to the user
         userInput = None
         while (userInput != 'S' and userInput != 'E' and userInput != 'B' and userInput != 'A'  and userInput != 'R' ):
-            userInput = input("Enter:\n[S]-Search\n[E]-Edit\n[A]-Add\n[R]-Reports\n[B]-Back\n")
+            userInput = input("Enter [S] to Search, [E] to Edit, [A] to Add, [R] for Reports, [B] to go Back: ")
         # If they wish to search for a playthrough
         if (userInput == 'S'):
             searchPT(userId)
@@ -42,7 +41,7 @@ def reports(userID):
     # ReportPTGen()
     userInput = None
     while userInput != 'C' and userInput != 'V':
-        userInput = input("Enter for report on: \n[V]-View a specific playthrough\n[C]-View completed\n")
+        userInput = input("Enter [V] to View a specific playthrough, [C] to View completed playthroughs: ")
     if userInput == 'C':
         ReportPTComp(userID)
     elif userInput == 'V':
@@ -51,25 +50,74 @@ def reports(userID):
 def searchPT(userId):
     userInput = None
     while (userInput != 'N' and userInput != 'G'):
-        userInput = input("Enter to search by: \n[N]-name\n[G]-game\n") 
+        userInput = input("Enter [N] to search for specific Playthrough by Name, User, and Game, [G] to search by Game Title: ") 
     if userInput == 'N':
         searchPTName(userId)
     elif userInput == 'G':
         searchPTGame(userId)
 
 def searchPTName(userId):
-    # Ask whether the user which playthrough they would like to view information on
+    # Get the userId
+    searchByUserId = None
+    while searchByUserId is None:
+        userName = input("Enter the user name you would like to search by: ")
+        # Get the userId
+        cursor.execute(f"SELECT userId FROM user WHERE userName='{userName}';")
+        result = cursor.fetchone()
+        if (result is None):
+            print(f"User {userName} does not exist.")
+        else:
+            searchByUserId = result[0]
+            # Check if any playthroughs actually exist
+            cursor.execute(f"SELECT * FROM playthrough WHERE userId='{searchByUserId}';")
+            result = cursor.fetchone()
+            if (result[0] is None):
+                print(f"No playthroughs exist for user '{userName}'")
+                return
+            # List out playthroughs that userId matches to
+            print(f"----- Playthroughs for user {userName} -----")
+            listPT(searchByUserId, None, 0)
+    # Ask the user which game the playthrough is for
+    gameId = None
+    while (gameId== None):
+        gameTitle = input("Enter the game you would like to search by: ")
+        # Check if the game exists
+        cursor.execute(f"SELECT gameId FROM game WHERE gameTitle='{gameTitle}';")
+        result = cursor.fetchone() # Get the resulting row for the query
+        if (result is None):
+            print(f"{gameTitle} does not exist.")
+        else:
+            gameId = result[0]
+            # Check if any playthroughs actually exist
+            cursor.execute(f"SELECT * FROM playthrough WHERE userId='{searchByUserId}' AND gameId='{gameId}';")
+            result = cursor.fetchone()
+            if (result[0] is None):
+                print(f"No playthroughs on game '{gameTitle}' exist for this user.")
+                gameId = None
+                return
+            # List out playthroughs that userId and gameId matches to
+            print(f"----- Playthroughs for this user on game {gameTitle} -----")
+            listPT(searchByUserId, gameTitle, 2)
+    # Ask the user which playthrough they would like to view information on
     playthroughId = None
     while (playthroughId == None):
-        playthroughName = input("Enter the name you would like to search by: ")
+        # Ask them which playthroughName they would like to search for
+        playthroughName = input("Enter the playthrough name you would like to search by: ")
         # Check if the playthrough exists
         cursor.execute(f"SELECT playthroughId FROM playthrough WHERE playthroughName='{playthroughName}';")
         result = cursor.fetchone() # Get the resulting row for the query
         if (result is None):
             print(f"Playthrough {playthroughName} does not exist!")
         else:
+            # Check if the provided playthrough actually exists
+            cursor.execute(f"SELECT playthroughId FROM playthrough WHERE userId='{searchByUserId}' AND gameId='{gameId}' AND playthroughName='{playthroughName}';")
+            result = cursor.fetchone()
             playthroughId = result[0]
-    listPT(userId, playthroughId, 5)
+            if (result[0] is None):
+                print(f"No playthrough with name '{playthroughName}' exist for this user on this game.")
+                return
+            # Find and list the playthrough
+            listPT(searchByUserId, playthroughId, 5)
 
 def searchPTGame(userId):
     # Ask whether the user which playthrough they would like to view information on
@@ -84,7 +132,6 @@ def searchPTGame(userId):
             gameTitle = None
     listPT(userId, gameTitle, 4)
 
-
 def ReportPTGen():
     print("Your playthrough statistics: ")
     None
@@ -94,35 +141,63 @@ def ReportPTComp(userId):
     listPT(userId, userInput, 3)
 
 def ReportPTView(userId):
-    # Ask whether the user which playthrough they would like to view information on
-    playthroughName = None
-    while (playthroughName == None):
-        playthroughName = input("Enter the name for the playthrough you would like to view: ")
+    # Ask the user which game the playthrough is for
+    gameId = None
+    while (gameId== None):
+        gameTitle = input("Enter the game you would like to search by: ")
+        # Check if the game exists
+        cursor.execute(f"SELECT gameId FROM game WHERE gameTitle='{gameTitle}';")
+        result = cursor.fetchone() # Get the resulting row for the query
+        if (result is None):
+            print(f"{gameTitle} does not exist.")
+        else:
+            gameId = result[0]
+            # Check if any playthroughs actually exist
+            cursor.execute(f"SELECT * FROM playthrough WHERE userId='{userId}' AND gameId='{gameId}';")
+            result = cursor.fetchone()
+            if result is None:
+                print(f"No playthroughs on game '{gameTitle}' exist for this user.")
+                gameId = None
+                return
+            # List out playthroughs that userId and gameId matches to
+            print(f"----- Your playthroughs for {gameTitle} -----")
+            listPT(userId, gameTitle, 2)
+    # Ask the user which playthrough they would like to view information on
+    playthroughId = None
+    while (playthroughId == None):
+        # Ask them which playthroughName they would like to search for
+        playthroughName = input("Enter the playthrough name you would like to search by: ")
         # Check if the playthrough exists
         cursor.execute(f"SELECT playthroughId FROM playthrough WHERE playthroughName='{playthroughName}';")
         result = cursor.fetchone() # Get the resulting row for the query
         if (result is None):
             print(f"Playthrough {playthroughName} does not exist!")
-            playthroughName = None
-    # Get and store the playthroughId of the new game
-    result = cursor.execute(f"SELECT playthroughId FROM playthrough WHERE playthroughName='{playthroughName}';")
-    result = cursor.fetchone()
-    playthroughId = result[0]
+        else:
+            # Check if the provided playthrough actually exists
+            cursor.execute(f"SELECT playthroughId FROM playthrough WHERE userId='{userId}' AND gameId='{gameId}' AND playthroughName='{playthroughName}';")
+            result = cursor.fetchone()
+            playthroughId = result[0]
+            if result is None:
+                print(f"No playthrough with name '{playthroughName}' exist for this user on this game.")
+                return
     # List playthrough information
     listPT(userId, playthroughId, 1)
-    # Ask them if they would like to view the achievements for this game
-    userInput = None
-    while (userInput != 'Y' and userInput != 'N'):
-        userInput = input("Would you like to view achievements for this playthrough? Enter [Y] for Yes, [N] for No: ")
-    # Display the playthrough achievement list for this playthrough if the user says yes
-    if (userInput == 'Y'):
-        list_playthrough_achievements(playthroughId, True)
-    None
+    # Check if there are any achievements in this playthrough
+    cursor.execute(f"SELECT achievementId FROM playthroughachievement WHERE playthroughId='{playthroughId}';")
+    result = cursor.fetchone()
+    if result is not None:
+        # Ask them if they would like to view the achievements for this playthrough
+        userInput = None
+        while (userInput != 'Y' and userInput != 'N'):
+            userInput = input("Would you like to view achievements for this playthrough? Enter [Y] for Yes, [N] for No: ")
+        # Display the playthrough achievement list for this playthrough if the user says yes
+        if (userInput == 'Y'):
+            list_playthrough_achievements(playthroughId, True)
+    else:
+        print("This playthrough does not include any achievements.")
 
 def addPT(userId):
-
     list_games(None, None, None, None)
-
     gameId = None
     while (gameId == None):
         # Ask them for the name of the game they wish to create a new playthrough for
@@ -135,28 +210,36 @@ def addPT(userId):
         if (gameId is None):
             print(f"{gameTitle} does not exist.")
             gameId = None
-
-    flag = False
-    while flag == False:
+    # Get the name for the new playthrough and make sure it is unique
+    addPTName = None
+    while addPTName is None:
         addPTName = input("Enter the new name of the playthrough you want to add: ")
-        cursor.execute(f"SELECT * from playthrough where playthroughName='{addPTName}'")
+        # Check if this name is already in use for this game by this user
+        cursor.execute(f"SELECT playthroughId FROM playthrough WHERE playthroughName='{addPTName}' AND userId='{userId}' AND gameId='{gameId}';")
         result = cursor.fetchone()
-        if result == None:
-            flag = True
-
-    flag = False
+        if result is not None:
+            print(f"You already have a playthrough named '{addPTName}' for this game!")
+            addPTName = None
+    # Get the description for the new playthrough
     addPTDesc = input("Enter the Description of the playthrough you are adding: ")
-
-    addPTTarg = input("Enter the target percentage of this playthrough: ")
-
-    cursor.execute(f"INSERT INTO playthrough (playthroughName, playthroughDescription, playthroughTargetPercent, gameId, userId) VALUES ('{addPTName}','{addPTDesc}','{addPTTarg}','{gameId}','{userId}');")
+    # Get the target percent for the new playthrough
+    addPTTarg = input("Enter the target percentage of this playthrough (Enter [NA] if not applicable): ")
+    if (addPTTarg == 'NA'):
+        cursor.execute(f"INSERT INTO playthrough (playthroughName, playthroughDescription, gameId, userId) VALUES ('{addPTName}','{addPTDesc}','{gameId}','{userId}');")
+    else:
+        cursor.execute(f"INSERT INTO playthrough (playthroughName, playthroughDescription, playthroughTargetPercent, playthroughCurrentPercent, gameId, userId) VALUES ('{addPTName}','{addPTDesc}','{addPTTarg}', 0,'{gameId}','{userId}');")
     conn.commit()
-    cursor.execute(f"SELECT playthroughId FROM playthrough WHERE playthroughName='{addPTName}';")
+    # Get the new playthrough's Id
+    cursor.execute(f"SELECT playthroughId FROM playthrough WHERE playthroughName='{addPTName}' AND gameId='{gameId}' AND userId='{userId}';")
     result = cursor.fetchone()
     playthroughId = result[0]
+    # List the new playthrough
+    print(f"{addPTName} successfully created!")
+    listPT(userId, playthroughId, 5)
+    # Ask if they would like to add any achievements for it
     userInput = None
     while (userInput != 'Y' and userInput != 'N'):
-        userInput = input(f"{addPTName} successfully created!\nWould you like to add any achievements to this playthrough?\nEnter [Y] for Yes, [N] for No: ")
+        userInput = input("Would you like to add any achievements to this playthrough?\nEnter [Y] for Yes, [N] for No: ")
     # If they want to add achievements
     if (userInput == 'Y'):
         add_playthrough_achievements(playthroughId, gameId)
@@ -169,6 +252,7 @@ def add_playthrough_achievements(playthroughId, gameId):
     done = False
     while (not done):
         # Get the achievementId and make sure it is valid
+        validAchievement = True
         achievementId = None
         while achievementId == None:
             # Get achievement name
@@ -179,11 +263,18 @@ def add_playthrough_achievements(playthroughId, gameId):
                 print(f"Achievement {achievementName} does not exist for this game.")
             else:
                 achievementId = result[0]
-        # Insert the new achievement into the database
-        cursor.execute(f"INSERT INTO playthroughachievement (achievementStatus, achievementId, playthroughId) VALUES ('Incomplete','{achievementId}','{playthroughId}');")
-        conn.commit()
+                # Check if this achievement is already present in the playthrough
+                cursor.execute(f"SELECT * FROM playthroughachievement WHERE achievementId='{achievementId}';")
+                result = cursor.fetchone()
+                if result is not None:
+                    print(f"Achievement with name {achievementName} has already been added to this playthrough!")
+                    validAchievement = False
+        # Insert the new achievement into the database if it is valid
+        if (validAchievement):
+            cursor.execute(f"INSERT INTO playthroughachievement (achievementStatus, achievementId, playthroughId) VALUES ('Incomplete','{achievementId}','{playthroughId}');")
+            conn.commit()
         # Print out list of achievements for this game
-        print(f"----- Current achievement for this playthrough -----")
+        print(f"----- Current achievements for this playthrough -----")
         list_playthrough_achievements(playthroughId, False)
         # Ask user if they would still like to add an achievement and set done to True if they say No
         userInput = None
@@ -195,69 +286,114 @@ def add_playthrough_achievements(playthroughId, gameId):
 def editPT(userID):
     print("----- Your playthroughs -----")
     listPT(userID, None, 0)
-    ptId = None
-    while ptId == None:
-        playthroughName = input("Enter the name of the playthrough you wish to edit: ")
-        cursor.execute(f"SELECT playthroughId from playthrough where playthroughName='{playthroughName}';")
-        result = cursor.fetchone()
-        if result == None:
-            print(f"{playthroughName} does not exist.")
+    # Ask the user which game the playthrough is for
+    gameId = None
+    while (gameId== None):
+        gameTitle = input("Enter the game you would like to search by: ")
+        # Check if the game exists
+        cursor.execute(f"SELECT gameId FROM game WHERE gameTitle='{gameTitle}';")
+        result = cursor.fetchone() # Get the resulting row for the query
+        if (result is None):
+            print(f"{gameTitle} does not exist.")
         else:
-            ptId = result[0]
-
-    print("----- The playthrough you selected -----")
-    listPT(userID, ptId, 1)
-    userInput = input("Which column do you wish to edit: \n[N]-name\n[D]-Description\n[T]-Target percent\n[A]-Achievements status\n[C]-Current percent\n[Complete]-Complete the playthrough or update the completion date to todays date\n")
-    if userInput == 'N':
-        userInput = input("What do you want the name to be: ")
-        cursor.execute(f"Update playthrough set playthroughName='{userInput}' where playthroughId='{ptId}';")
-        conn.commit()
-        print(f"Playthrough name changed to - {userInput}")
-    elif userInput == 'D':
-        userInput = input("What do you want the Description to be: ")
-        cursor.execute(f"Update playthrough set playthroughDescription='{userInput}' where playthroughId='{ptId}';")
-        conn.commit()
-        print(f"Playthrough description changed to - {userInput}")
-    elif userInput == 'T':
-        userInput = input("What do you want the Target Percent to be: ")
-        cursor.execute(f"Update playthrough set playthroughTargetPercent='{userInput}' where playthroughId='{ptId}';")
-        conn.commit()
-        print(f"Playthrough target percent changed to - {userInput}%")
-    elif userInput == 'C':
-        userInput = input("What do you want the current percent to be: ")
-        cursor.execute(f"Update playthrough set playthroughCurrentPercent='{userInput}' where playthroughId='{ptId}';")
-        conn.commit()
-        print(f"Playthrough current percent changed to - {userInput}%")
-    elif userInput == 'Complete':
-        cursor.execute(f"Update playthrough set playthroughEndDate = CURDATE() where playthroughId = '{ptId}';")
-        conn.commit()
-        print(f"Playthrough end date updated to today.")
-    elif userInput == 'A':
-        print("----- List of achievements for this playthrough -----")
-        list_playthrough_achievements(ptId, False)
-        # Get the achievementId and make sure it is valid
-        achievementId = None
-        while achievementId == None:
-            # Get achievement name
-            achievementName = input("Enter the name of achievement would you like to toggle completion status for (Complete/Incomplete): ")
-            cursor.execute(f"SELECT achievementId FROM achievement NATURAL JOIN playthroughachievement WHERE achievementName='{achievementName}' AND playthroughId='{ptId}';")
+            gameId = result[0]
+            # Check if any playthroughs actually exist
+            cursor.execute(f"SELECT * FROM playthrough WHERE userId='{userID}' AND gameId='{gameId}';")
             result = cursor.fetchone()
             if result is None:
-                print(f"Achievement {achievementName} does not exist for this game.")
-            else:
-                achievementId = result[0]
-        # The new value we want to set the status to
-        newStatus = ''
-        cursor.execute(f"SELECT achievementStatus FROM playthroughachievement WHERE achievementId='{achievementId}' AND playthroughId='{ptId}';")
-        result = cursor.fetchone()
-        if (result[0] == 'Incomplete'):
-            newStatus = "Complete"
+                print(f"No playthroughs on game '{gameTitle}' exist for this user.")
+                gameId = None
+                return
+            # List out playthroughs that userId and gameId matches to
+            print(f"----- Your playthroughs for {gameTitle} -----")
+            listPT(userID, gameTitle, 2)
+    # Ask the user which playthrough they would like to view information on
+    ptId = None
+    while (ptId == None):
+        # Ask them which playthroughName they would like to search for
+        playthroughName = input("Enter the playthrough name you would like to search by: ")
+        # Check if the playthrough exists
+        cursor.execute(f"SELECT playthroughId FROM playthrough WHERE playthroughName='{playthroughName}';")
+        result = cursor.fetchone() # Get the resulting row for the query
+        if (result is None):
+            print(f"Playthrough {playthroughName} does not exist!")
         else:
-            newStatus = "Incomplete"
-        # Set the new status
-        cursor.execute(f"UPDATE playthroughachievement SET achievementStatus='{newStatus}' WHERE playthroughId='{ptId}' AND achievementId='{achievementId}';")
-        conn.commit()
-        print(f"Achievement status updated to {newStatus}.")
+            # Check if the provided playthrough actually exists
+            cursor.execute(f"SELECT playthroughId FROM playthrough WHERE userId='{userID}' AND gameId='{gameId}' AND playthroughName='{playthroughName}';")
+            result = cursor.fetchone()
+            ptId = result[0]
+            if result is None:
+                print(f"No playthrough with name '{playthroughName}' exist for this user on this game.")
+                return
+    # Let the user keep making edits until they wish to stop
+    done = False
+    while not done:
+        print("----- The playthrough you selected -----")
+        listPT(userID, ptId, 1)
+        userInput = input("What would you like to edit? Enter:\n[N] for Name\n[D] for Description\n[T] for Target percent\n[A] for Achievements status\n[C] for Current percent\n[Complete] to Complete the playthrough or update the completion date to today's date\n[Done] when you are Done\n")
+        if userInput == 'N':
+            userInput = input("What do you want the name to be: ")
+            cursor.execute(f"Update playthrough set playthroughName='{userInput}' where playthroughId='{ptId}';")
+            conn.commit()
+            print(f"Playthrough name changed to - {userInput}")
+        elif userInput == 'D':
+            userInput = input("What do you want the Description to be: ")
+            cursor.execute(f"Update playthrough set playthroughDescription='{userInput}' where playthroughId='{ptId}';")
+            conn.commit()
+            print(f"Playthrough description changed to - {userInput}")
+        elif userInput == 'T':
+            # Get the target percent for the new playthrough
+            userInput = input("Enter the new target percentage of this playthrough (Enter [NA] if no longer applicable): ")
+            if (userInput == 'NA'):
+                cursor.execute(f"Update playthrough set playthroughTargetPercent=NULL where playthroughId='{ptId}';")
+                cursor.execute(f"Update playthrough set playthroughCurrentPercent=NULL where playthroughId='{ptId}';")
+            else:
+                cursor.execute(f"Update playthrough set playthroughTargetPercent='{userInput}' where playthroughId='{ptId}';")
+            conn.commit()
+            print(f"Playthrough target percent changed to - {userInput}%")
+        elif userInput == 'C':
+            # Check if targetPercent is null
+            cursor.execute(f"SELECT playthroughTargetPercent FROM playthrough WHERE playthroughId='{ptId}';")
+            result = cursor.fetchone()
+            if result is None:
+                print("This playthrough's target percent is set not applicable! Please change the target percent first.")
+                return
+            userInput = input("What do you want the current percent to be: ")
+            cursor.execute(f"Update playthrough set playthroughCurrentPercent='{userInput}' where playthroughId='{ptId}';")
+            conn.commit()
+            print(f"Playthrough current percent changed to - {userInput}%")
+        elif userInput == 'Complete':
+            cursor.execute(f"Update playthrough set playthroughEndDate = CURDATE() where playthroughId = '{ptId}';")
+            conn.commit()
+            print(f"Playthrough end date updated to today.")
+        elif userInput == 'A':
+            print("----- List of achievements for this playthrough -----")
+            list_playthrough_achievements(ptId, False)
+            # Get the achievementId and make sure it is valid
+            achievementId = None
+            while achievementId == None:
+                # Get achievement name
+                achievementName = input("Enter the name of achievement would you like to toggle completion status for (Complete/Incomplete): ")
+                cursor.execute(f"SELECT achievementId FROM achievement NATURAL JOIN playthroughachievement WHERE achievementName='{achievementName}' AND playthroughId='{ptId}';")
+                result = cursor.fetchone()
+                if result is None:
+                    print(f"Achievement {achievementName} does not exist for this game.")
+                else:
+                    achievementId = result[0]
+            # The new value we want to set the status to
+            newStatus = ''
+            cursor.execute(f"SELECT achievementStatus FROM playthroughachievement WHERE achievementId='{achievementId}' AND playthroughId='{ptId}';")
+            result = cursor.fetchone()
+            if (result[0] == 'Incomplete'):
+                newStatus = "Complete"
+            else:
+                newStatus = "Incomplete"
+            # Set the new status
+            cursor.execute(f"UPDATE playthroughachievement SET achievementStatus='{newStatus}' WHERE playthroughId='{ptId}' AND achievementId='{achievementId}';")
+            conn.commit()
+            print(f"Achievement status updated to {newStatus}.")
+        elif userInput == 'Done':
+            done = True
 
 """ If userId is specified then only list playthroughs for that user """
 '''mode is the type of value for the second input 

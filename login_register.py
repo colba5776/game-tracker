@@ -25,12 +25,14 @@ def register():
         if (result is not None):
             print(f"Username ({userName}) is not available.")
         else:  
-            userInput = input("Do these credentials look good?\n Enter [Y] to confirm, [N] to update credentials: ")    
+            userInput = input("Do these credentials look good?\nEnter [Y] to confirm, [N] to update credentials: ")    
             if (userInput == 'Y'):
                 confirmed = True
                 # Insert the new user into the database
                 cursor.execute(f"INSERT INTO user (userName, userPassword) VALUES ('{userName}', '{userPassword}');")
                 conn.commit()
+                # Ask the user to enter their login credentials
+                print("Please log in with your new credentials.")
 
 """ Used to run user login procedure """ 
 def login():

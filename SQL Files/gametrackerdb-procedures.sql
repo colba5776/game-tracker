@@ -182,3 +182,54 @@ BEGIN
     where playthroughID = inPTID;
 END$$
 DELIMITER ;
+
+/* Create  Triggers */
+
+DROP TRIGGER IF EXISTS `gametrackerdb`.`user_BEFORE_DELETE`;
+
+DELIMITER $$
+USE `gametrackerdb`$$
+CREATE DEFINER=`root`@`localhost` TRIGGER `user_BEFORE_DELETE` BEFORE DELETE ON `user` FOR EACH ROW BEGIN
+	-- Delete any games which were added by this user
+    DELETE FROM game WHERE userId=OLD.userId;
+    -- Delete any ratings which were created by this user
+    DELETE FROM rating WHERE userId=OLD.userId;
+    -- Delete any playthroughs which were created by this user
+    DELETE FROM playthrough WHERE userId=OLD.userId;
+END$$
+DELIMITER ;
+
+DROP TRIGGER IF EXISTS `gametrackerdb`.`game_BEFORE_DELETE`;
+
+DELIMITER $$
+USE `gametrackerdb`$$
+CREATE DEFINER=`root`@`localhost` TRIGGER `game_BEFORE_DELETE` BEFORE DELETE ON `game` FOR EACH ROW BEGIN
+	-- Delete any achievements which belong to this game
+    DELETE FROM achievement WHERE gameId=OLD.gameId;
+    -- Delete any playthroughs which belong to this game
+    DELETE FROM playthrough WHERE gameId=OLD.gameId;
+    -- Delete any ratings associated with this game
+    DELETE FROM rating WHERE gameId=OLD.gameId;
+END$$
+DELIMITER ;
+
+DROP TRIGGER IF EXISTS `gametrackerdb`.`achievement_BEFORE_DELETE`;
+
+DELIMITER $$
+USE `gametrackerdb`$$
+CREATE DEFINER = CURRENT_USER TRIGGER `gametrackerdb`.`achievement_BEFORE_DELETE` BEFORE DELETE ON `achievement` FOR EACH ROW
+BEGIN
+	-- Delete any playthrough achievements where this achievement appears
+    DELETE FROM playthroughachievement WHERE achievementId=OLD.achievementId;
+END$$
+DELIMITER ;
+
+DROP TRIGGER IF EXISTS `gametrackerdb`.`playthrough_BEFORE_DELETE`;
+
+DELIMITER $$
+USE `gametrackerdb`$$
+CREATE DEFINER=`root`@`localhost` TRIGGER `playthrough_BEFORE_DELETE` BEFORE DELETE ON `playthrough` FOR EACH ROW BEGIN
+	-- Delete any playthrough achievements this playthrough contains
+    DELETE FROM playthroughachievement WHERE playthroughId=OLD.playthroughId;
+END$$
+DELIMITER ;
