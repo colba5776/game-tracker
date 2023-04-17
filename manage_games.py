@@ -270,7 +270,7 @@ def list_games(gameId, genreId, ownerId, userId):
         #args = [gameId, userId]
         #cursor.callproc('game_report', args)
         #result = cursor.fetchone()
-        cursor.execute(f"SELECT gameID, gameTitle, gameDescription, get_genre_name(genreId), get_user_name(userId), get_average_rating('{gameId}'), get_game_played('{gameId}', '{userId}') FROM game WHERE gameId='{gameId}';")
+        cursor.execute(f"SELECT gameID, gameTitle, gameDescription, get_genre_name(genreId), get_user_name(userId), get_average_rating(gameId), get_game_played('{gameId}', '{userId}') FROM game WHERE gameId='{gameId}';")
         # Create and print the pretty table of games
         pt = from_db_cursor(cursor)
         pt.field_names = ["Game ID", "Title", "Description", "Genre", "Owner", "Average Rating", "Played?"]
