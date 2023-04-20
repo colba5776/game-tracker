@@ -47,7 +47,7 @@ Below is how you install and run the mysql server:
  - gametrackerdb-populate.sql
 
 Below is how you set up and access the server from the command line:
-1. open up the file named  
+1. open up the file named 'connect_dbconfig' and change the field for user name and password to the ones on your mysql server
 2. open up file explore where the files were download, and in the search bar type cmd, which should open the command prompt from the directory
 3. enter the following commands
 ```cmd
