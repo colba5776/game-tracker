@@ -16,12 +16,11 @@ The aim of this project is to practice the core ideas that we learned in our int
 
 __________
 ## Index
-1 - Installation
-2 - Navigation
-3 - known bugs
-4 - Afternotes
+1. Installation
+2. known bugs
+3. Afternotes
 __________
-## Installation
+## 1- Installation
 
 Preface: this installation assumes you are running on a windows 10 operating system with python 3, pip, mysql workbench, and mysql server
 
@@ -38,17 +37,36 @@ To check to see if python 3 is installed as well as the appropriate path variabl
  - https://www.youtube.com/watch?v=a1AMVA9p3W0&t=7s&ab_channel=EngineersRevolution
 
 
-Below is how you install and run the mysql server
+Below is how you install and run the mysql server:
 1. Open up the file named 'gametrackerdv-model.mwb' 
-2. forward engineer the diagram 
-- there is sometimes and issue with the default value of date on playthroughs, if this occurs change the default date to 9999-01-01
-3. connect to database and load and run the following sql scripts in top to bottom order:
+2. Forward engineer the diagram 
+ - there is sometimes and issue with the default value of date on playthroughs, if this occurs change the default date to 9999-01-01
+3. Connect to database and load and run the following sql scripts in top to bottom order:
  - gametrackerdb-procedures.sql
  - gametrackerdb-supp.sql
  - gametrackerdb-populate.sql
-4. 
 
+Below is how you set up and access the server from the command line:
+1. open up the file named  
+2. open up file explore where the files were download, and in the search bar type cmd, which should open the command prompt from the directory
+3. enter the following commands
+```cmd
+python -m pip install -U prettytable
+python -m pip install -U mysql.connector
+python -m pip install -U mysql.connector.python
+```
 
+___________________
+## 2 - known bugs
+
+some commonly known issues at the moment that we will plan on fixxing if we come back to database are as follows:
+- use of capitalization, spelling errors, characters such as ' and injection of keywords and mysql code for input
+- standardization of layout of options for all choices
+
+__________________
+## 3 - After notes 
+
+Please feel free to add to this project, if so please update the README to reflect any updates made to the project. 
 
 
 
