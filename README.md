@@ -36,24 +36,25 @@ To check to see if python 3 is installed as well as the appropriate path variabl
  - https://www.youtube.com/watch?v=lezhrFdVSVY&ab_channel=ExampleProgram
  - https://www.youtube.com/watch?v=a1AMVA9p3W0&t=7s&ab_channel=EngineersRevolution
 
-
 Below is how you install and run the mysql server:
-1. Open up the file named 'gametrackerdv-model.mwb' 
-2. Forward engineer the diagram 
- - there is sometimes and issue with the default value of date on playthroughs, if this occurs change the default date to 9999-01-01
-3. Connect to database and load and run the following sql scripts in top to bottom order:
- - gametrackerdb-procedures.sql
+1. Open up mysqlworkbench and load the dump file into a query execute
+ - there is sometimes and issue with the default value of startdate on playthroughs, if this occurs change the default date to '1900-01-01'
+2. Connect to database and load and run the following sql scripts in top to bottom order:
  - gametrackerdb-supp.sql
- - gametrackerdb-populate.sql
+ - gametrackerdb-populate.sql (run this if you wish to prepopulate the script)
 
 Below is how you set up and access the server from the command line:
-1. open up the file named 'connect_dbconfig' and change the field for user name and password to the ones on your mysql server
+1. open up the file named 'connect.ini' and change the field for user name and password to the ones on your mysql server
 2. open up file explore where the files were download, and in the search bar type cmd, which should open the command prompt from the directory
 3. enter the following commands
 ```cmd
 python -m pip install -U prettytable
 python -m pip install -U mysql.connector
 python -m pip install -U mysql.connector.python
+```
+4. To Run the python script for interaction with the live database run the following command in the directory where main.py is located
+```cmd
+python main.py
 ```
 
 ___________________
@@ -62,6 +63,7 @@ ___________________
 some commonly known issues at the moment that we will plan on fixxing if we come back to database are as follows:
 - use of capitalization, spelling errors, characters such as ' and injection of keywords and mysql code for input
 - standardization of layout of options for all choices
+- curdate() default value for playthrough.startDate issue when you construct in only some systems, quick fix is to set the default startdate to '1900-01-01'
 
 __________________
 ## 3 - After notes 
