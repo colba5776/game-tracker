@@ -40,8 +40,14 @@ Below is how you install and run the mysql server:
 1. Open up mysqlworkbench and load the dump file into a query execute
  - there is sometimes and issue with the default value of startdate on playthroughs, if this occurs change the default date to '1900-01-01'
 2. Connect to database and load and run the following sql scripts in top to bottom order:
- - gametrackerdb-supp.sql
- - gametrackerdb-populate.sql (run this if you wish to prepopulate the script)
+ - gametrackerdb-supp.sql (it will say duplicate constraints exist, but this just means they were already added with the dump so ignore it)
+
+Below is how you install and run the mysql server without using the dump file:
+1. Open up mysqlworkbench, load and forward engineer the gametrackerdb-model.mwb model
+ - there is sometimes and issue with the default value of startdate on playthroughs, if this occurs change the default date to '1900-01-01'
+2. Connect to database and load and run the following sql scripts in top to bottom order:
+ - gametrackerdb-supp.sql 
+ - gametrackerdb-populate.sql (run this if you wish to prepopulate the database)
 
 Below is how you set up and access the server from the command line:
 1. open up the file named 'connect.ini' and change the field for user name and password to the ones on your mysql server
