@@ -2,7 +2,7 @@
 ### Term project for CSI 3450
 
 ### Preface:
-The aim of this project is to practice the core ideas that we learned in our intro to SQL databases classes. The application use is for storeing information about the users and the playthroughs and games and ratings to store progess of all your games.
+The aim of this project is to practice the core ideas that we learned in our intro to SQL databases class. The application use is for storeing information about the users and the playthroughs and games and ratings to store progess of all your games.
 
 ### Business rules:
 - A user can own many games, but each game can only be owned by a single user. 
